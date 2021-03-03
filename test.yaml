@@ -1,0 +1,1564 @@
+openapi: '3.0.3'
+
+info:
+  title: RMM API Specification
+  version: '0.1'
+  description: 'This is specification doc for RMM(In-Progress)'
+                
+
+servers:
+  - url: " "https://rmmmgmt.azure-api.net/""
+    description: 'RMM APIs'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: https
+      serviceAddress:
+        description: Azure API Management Console URL
+        default:  rmmmgmt.azure-api.net
+
+tags:
+  - name: RMM Account Services
+    description: 'Account Operations (Login,Logout,changepassword)'
+
+  - name: Device Operations
+    description: 'Device Operations(device list,device details,logs)'
+  
+  - name: Permission API
+    description: 'Permission for login user account on home group'
+    
+  - name: Group Operations
+    description: 'Group Operations(group create, delete,edit & display)'
+    
+  - name: DB Operations
+    description: 'Check Progress(check existance of request id in the queue '
+paths:
+  # Device Operations
+  
+  /rmm/account/login:
+    post:
+      tags:
+        - 'RMM Account Services'
+      summary: Temporary APIs. This API will be enhanced later based on the Requirement Retrieve jwt token for the login user containing the PermissionList & GroupTree to which user has access to
+     # security:
+    #    - UserSecurity: []
+      #parameters:
+       # - name: Authorization
+        #  in: header
+         # schema:
+          #  type: string
+          #description: 'JWT Access Token issued by AWS Cognito pool '
+          #required: true
+      responses:
+        '200':
+          description: 'Returns the Login Response containing Session token,status & expire time with token containing permission list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginRes'
+  /rmm/account/logout:
+    post:
+      tags:
+        - 'RMM Account Services'
+      summary: Retrieve jwt token for the login user
+      responses:
+        '200':
+          description: 'Returns the Login Response containing Session token, status & expire time'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/logoutRes'
+  /rmm/device/getDeviceList:
+    post:
+      tags:
+        - 'Device Operations'
+      summary: 'Get Device list'
+      description: 'Return the device list i.e. registered in specified group'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getDeviceListRq'
+      responses:
+        '200':
+          description: >-
+            Get Device list result <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getDeviceListRes'
+  /rmm/device/getDeviceDetail:
+    post:
+      tags:
+        - 'Device Operations'
+      summary: 'Get Device detail information'
+      description: 'Return the device details informaiton'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getDeviceDetailRq'
+      responses:
+        '200':
+          description: >-
+            Get Device detail information result <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getDeviceDetailRes'
+  /rmm/device/getDeviceLog:
+    post:
+      tags:
+        - 'Device Operations'
+      summary: 'Get Device log'
+      description: 'Return the device log list i.e. registered in specified group'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getDeviceLogRq'
+      responses:
+        '200':
+          description: >-
+            Get Device log list result <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getDeviceLogRes'
+  /rmm/group/createGroup:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'Create group under parent groupId'
+      description: 'Return the groupId'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/createGrpRq'
+      responses:
+        '200':
+          description: >-
+            Return the groupId <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/createGrpRes'              
+  /rmm/group/editGroup:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'Edit group name & description'
+      description: 'Return the status '
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/editGrpRq'
+      responses:
+        '200':
+          description: >-
+            Return the status <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/editGrpRes'              
+  /rmm/group/getGroupList:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'It Retrieves group Information & its child groups'
+      description: 'Returns group info with its child groups'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getGrpListRq'
+      responses:
+        '200':
+          description: >-
+            Return the group List <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getGrpListRes'              
+  /rmm/group/getGroupTree:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'It Returns list of the groups user has access to with parent child relationship(heiarchy information'
+      description: 'Returns group tree'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getGrpTreeRq'
+      responses:
+        '200':
+          description: >-
+            Return the group Tree <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getGrpTreeRes'              
+  /rmm/group/startMoveGroup:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: ' Moves groups '
+      description: 'Moves group from source group to destination group(use checkProgress to confirm the execution status & getMoveGroupResult to confirm execution result)'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/startMoveGrpRq'
+      responses:
+        '200':
+          description: >-
+            Return the group Tree <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/startMoveGrpRes'              
+  /rmm/group/startRemoveGroup:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'Remove groups '
+      description: 'Removes the specified group & its childrens including devices & its associated agents (use checkProgress to confirm the execution status & getRemoveGroupResult to confirm execution result)'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/startRemoveGrpRq'
+      responses:
+        '200':
+          description: >-
+            Return the requestId <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/startRemoveGrpRes'              
+  /rmm/group/getRemoveGroupResult:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'Get Group remove result'
+      description: 'This API will check whether group remove is completed or not'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getRemoveGroupResultRq'
+      responses:
+        '200':
+          description: >-
+            Return the group remove status (true/false)<br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getRemoveGroupResultRes'              
+  /rmm/group/getMoveGroupResult:
+    post:
+      tags:
+        - 'Group Operations'
+      summary: 'Get Group Move result'
+      description: 'This API will check whether group Move is completed or not'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getMoveGroupResultRq'
+      responses:
+        '200':
+          description: >-
+            Return the group remove status (true/false)<br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getMoveGroupResultRes'              
+  /rmm/account/getPermissionList:
+    post:
+      tags:
+        - 'Permission API'
+      summary: 'Get Permission List'
+      description: 'Return the permission list for the login user'
+      security:
+          - UserSecurity: []
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/getPermissionListReq'
+      responses:
+        '200':
+          description: >-
+            Get List of Permissions for login user<br>
+            TBD with Venkat on wednesday <br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/getPermissionListRes'
+  /rmm/db/checkProgress:
+    post:
+      tags:
+        - 'DB Operations'
+      summary: 'Check progress '
+      description: 'This API will check the existance of requestId in the Queue'
+      requestBody:
+        required: true
+        content:
+          aplication/json:
+            schema:
+              $ref: '#/components/schemas/checkProgressRq'
+      responses:
+        '200':
+          description: >-
+            Return the requestId status (true/false)<br>
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/checkProgressRes'              
+  
+components:
+  schemas:
+    # request pamameters
+    # devicelist request
+    getDeviceListRq:
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          description: >-
+            Start Index <br>
+            ●Check content
+              - Error for other than numeric value
+          default: 1
+        count:
+          type: integer
+          description: >-
+            Number of records <br>
+            ●Check content
+              - Error for other than numeric value
+          default: 10
+        groupId:
+          type: string
+          description: >-
+            groupId of target group <br>
+            ●Check content
+              - Error for null, null character (i.e. empty string)
+        filterId:
+          type: string
+          description: 'User Filter filterId'
+        attribute:
+          type: string
+          description: >-
+            Attribute of Acquisition/Get target
+              - managed： Managed Device
+              - trash： Deleted Device (i.e. in Trash/recycle bin)
+              - new： New Device 
+
+            ●Check content
+              - Error for other than specified value
+          enum:
+            - managed
+            - trash
+            - new 
+        deviceType:
+          type: string
+          description: "Type of device "
+          enum:
+            - MFP
+            - agent 
+            - Display
+        simpleFilters:
+          type: array
+          description: 'Simple Filter'
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: >-
+                  Filter key<br>
+                  Specifiable items are as below.
+                  - Filter key list
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>modelName</td><td>Model name</td></tr>
+                      <tr><td>serialNumber</td><td>Serial number</td></tr>
+                      <tr><td>ipAddress</td><td>IP address</td></tr>
+                      <tr><td>location</td><td>Location</td></tr>
+                      <tr><td>description</td><td>Description</td></tr>
+                      <tr><td>macAddress</td><td>MacAddress</td></tr>
+                      <tr><td>impressioncount</td><td>Impression Count</td></tr>
+                      <tr><td>firmwareversion</td><td>firmwareversion</td></tr>
+                      <tr><td>friendlyName</td><td>Name</td></tr>
+                      <tr><td>errorLevel</td><td>Alert Level</td></tr>
+                      <tr><td>status</td><td>Device Status</td></tr>
+                      <tr><td>communicationStatus</td><td>Communication Status</td></tr>
+                    </table>
+
+                  ●Check content
+                    - Error for other than specified value
+              value:
+                type: string
+                description: >-
+                  Filtering target strings <br>
+                  Strings that are Specifiable in filter key are as below.
+
+                  - Filtering target strings
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>modelName</td><td>Specify input value</td></tr>
+                      <tr><td>serialNumber</td><td>Specify input value</td></tr>
+                      <tr><td>ipAddress</td><td>Specify input value</td></tr>
+                      <tr><td>location</td><td>Specify input value</td></tr>
+                      <tr><td>description</td><td>Specify input value</td></tr>
+                      <tr><td>macAddress</td><td>Specify input value</td></tr>
+                      <tr><td>impressioncount</td><td>Specify input value</td></tr>
+                      <tr><td>firmwareversion</td><td>Specify input value</td></tr>
+                      <tr><td>friendlyName</td><td>Specify input value</td></tr>
+                      <tr><td>errorLevel</td><td>error,warning,normal</td></tr>
+                      <tr><td>status</td><td>
+                                                                <table border="1">
+                      <tr><td>unknown</td></tr>
+                      <tr><td>printererror </td></tr>
+                      <tr><td>accountlimit </td></tr>
+                      <tr><td>overduepreventmaintenance </td></tr>
+                      <tr><td>paperjam </td></tr>
+                      <tr><td>markersupplymissing </td></tr>
+                      <tr><td>tonerempty </td></tr>
+                      <tr><td>coveropen </td></tr>
+                      <tr><td>paperempty  </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtraymissing </td></tr>
+                      <tr><td>alloutputtrayfull </td></tr>
+                      <tr><td>specifiedoutputtraymissing </td></tr>
+                      <tr><td>offline </td></tr>
+                      <tr><td>printerwarning  </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>paperlow</td></tr>
+                      <tr><td>inputtraymissing </td></tr>
+                      <tr><td>outputtraymissing </td></tr>
+                      <tr><td>outputtrayfull </td></tr>
+                      <tr><td>stackernotinstalled  </td></tr>
+                      <tr><td>nearoverduepreventmaintenance   </td></tr>
+                      <tr><td>standby  </td></tr>
+                      <tr><td>warmup  </td></tr>
+                      <tr><td>printing  </td></tr>
+                      <tr><td>online</td></tr>
+                    </table></td></tr>
+                      <tr><td>communicationStatus</td><td>True/false</td></tr>
+            required:
+              - key
+              - value
+
+        orderBy:
+          type: array
+          description: 'Sort Specification'
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: >-
+                  Sort Key <br>
+                  Specifiable items are as below.
+
+                  - Sort Key list
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>modelName</td><td>Model name</td></tr>
+                      <tr><td>serialNumber</td><td>Serial number</td></tr>
+                      <tr><td>ipAddress</td><td>IP Address <br>Sort IP address by digitized value (i.e. converted to numerical form)</td></tr>
+                      <tr><td>friendlyName</td><td>Name</td></tr>
+                      <tr><td>errorLevel</td><td>Alert Value</td></tr>
+                      <tr><td>status</td><td>Status</td></tr>
+                       <tr><td>location</td><td>Location</td></tr>
+                      <tr><td>description</td><td>Description</td></tr>
+                      <tr><td>macAddress</td><td>MacAddress</td></tr>
+                      <tr><td>impressioncount</td><td>Impression Count</td></tr>
+                      <tr><td>firmwareversion</td><td>firmwareversion</td></tr>
+                      <tr><td>discoveryTime</td><td>DiscoveryTime</td></tr>
+                      <tr><td>laststatusupdate</td><td>Last StatusUpdate</td></tr>
+                      <tr><td>lastbasicupdate</td><td>LastBasicUpdate</td></tr>
+                      <tr><td>lastsuppliesupdate</td><td>LastBasicUpdate</td></tr>
+                      <tr><td>lastcounterupdate</td><td>LastCounterUpdate</td></tr>
+                      <tr><td>troublecode</td><td>Errorcode/maintaintainence code</td></tr>
+                      <tr><td>communicationStatus</td><td>Communication Status</td></tr>
+                    </table>
+                  ●Check content
+                    - Error for other than specified value
+              order:
+                type: string
+                description: >-
+                  Sort Order <br>
+                    - ascending: Ascending
+                    - descending: Descending
+
+                  ●Check content
+                    - Error for other than specified value
+                enum:
+                  - ascending
+                  - descending
+            required:
+              - key
+              - order
+      required:
+        - groupId
+        - attribute
+    getDeviceLogRq:
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          description: >-
+            Start Index <br>
+            ●Check content
+              - Error for other than numeric value
+          default: 1
+        count:
+          type: integer
+          description: >-
+            Number of records <br>
+            ●Check content
+              - Error for other than numeric value
+          default: 10
+        groupId:
+          type: string
+          description: >-
+            groupId of target group <br>
+            ●Check content
+              - Error for null, null character (i.e. empty string)
+        reqAttr:
+          type: string
+          description: "logcount:It gets the count of device logs(total count,error count,warn count,noResponseCount.Others:It gets device log"
+        deviceId:
+          type: string
+          description: 'device Id'
+        filterId:
+          type: string
+          description: 'User Filter filterId'
+        simpleFilterList:
+          type: array
+          description: 'Simple Filter'
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: >-
+                  Filter key<br>
+                  Specifiable items are as below.
+                  - Filter key list
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>Type</td><td>Different Status update types & detection</td></tr>
+                      <tr><td>communicationStatus</td><td>Communication Status</td></tr>
+                      <tr><td>errorLevel</td><td>Alert Level </td></tr>
+                      <tr><td>status</td><td>Device Status</td></tr>
+                      <tr><td>modelName</td><td>Model name</td></tr>
+                      <tr><td>friendlyName</td><td>Name</td></tr>
+                      <tr><td>ipAddress</td><td>IP address</td></tr>
+                      <tr><td>location</td><td>Location</td></tr>
+                      <tr><td>macAddress</td><td>MacAddress</td></tr>
+                      <tr><td>serialNumber</td><td>Serial number</td></tr>
+                      <tr><td>firmwareversion</td><td>firmwareversion</td></tr>
+                    </table>
+
+                  ●Check content
+                    - Error for other than specified value
+              value:
+                type: string
+                description: >-
+                  Filter Value<br>
+                  Specifiable items are as below.
+                  - Filter key list
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>Type</td><td>device/Discovery/statusupdate/basic/supply/counter</td></tr>
+                      <tr><td>communicationStatus</td><td>True/False</td></tr>
+                      <tr><td>errorLevel</td><td>error,normal,warning</td></tr>
+                      <tr><td>status</td><td>
+                                          <table border="1">
+                      <tr><td>unknown</td></tr>
+                      <tr><td>printererror </td></tr>
+                      <tr><td>accountlimit </td></tr>
+                      <tr><td>overduepreventmaintenance </td></tr>
+                      <tr><td>paperjam </td></tr>
+                      <tr><td>markersupplymissing </td></tr>
+                      <tr><td>tonerempty </td></tr>
+                      <tr><td>coveropen </td></tr>
+                      <tr><td>paperempty  </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtraymissing </td></tr>
+                      <tr><td>alloutputtrayfull </td></tr>
+                      <tr><td>specifiedoutputtraymissing </td></tr>
+                      <tr><td>offline </td></tr>
+                      <tr><td>printerwarning  </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>paperlow</td></tr>
+                      <tr><td>inputtraymissing </td></tr>
+                      <tr><td>outputtraymissing </td></tr>
+                      <tr><td>outputtrayfull </td></tr>
+                      <tr><td>stackernotinstalled  </td></tr>
+                      <tr><td>nearoverduepreventmaintenance   </td></tr>
+                      <tr><td>standby  </td></tr>
+                      <tr><td>warmup  </td></tr>
+                      <tr><td>printing  </td></tr>
+                      <tr><td>online</td></tr>
+                    </table>
+                      </td></tr>
+                      <tr><td>modelName</td><td>Specify input value</td></tr>
+                      <tr><td>friendlyName</td><td>Specify input value</td></tr>
+                      <tr><td>ipAddress</td><td>Specify input value</td></tr>
+                      <tr><td>location</td><td>Specify input value</td></tr>
+                      <tr><td>macAddress</td><td>Specify input value</td></tr>
+                      <tr><td>serialNumber</td><td>Specify input value</td></tr>
+                      <tr><td>firmwareversion</td><td>Specify input value</td></tr>
+                    </table>
+            required:
+              - key
+              - value
+
+        orderBy:
+          type: array
+          description: 'Sort Specification'
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: >-
+                  Sort Key <br>
+                  Specifiable items are as below.
+
+                  - Sort Key list
+                    <table border="1">
+                      <tr><th>Key</th><th>Description</th></tr>
+                      <tr><td>timestamp</td><td>Date & Time</td></tr>
+                      <tr><td>Type</td><td>Operation type</td></tr>
+                      <tr><td>communicationStatus</td><td>Communication Status</td></tr>
+                      <tr><td>errorLevel</td><td>Alert Level</td></tr>
+                      <tr><td>status</td><td>Device Status</td></tr>
+                      <tr><td>modelName</td><td>Model name</td></tr>
+                      <tr><td>friendlyName</td><td>Name</td></tr>
+                      <tr><td>ipAddress</td><td>IP Address <br>Sort IP address by digitized value (i.e. converted to numerical form)</td></tr>
+                      <tr><td>location</td><td>Location</td></tr>
+                      <tr><td>macAddress</td><td>MacAddress</td></tr>
+                      <tr><td>serialNumber</td><td>Serial number</td></tr>
+                      <tr><td>firmwareversion</td><td>firmwareversion</td></tr>
+                    </table>
+                  ●Check content
+                    - Error for other than specified value
+              order:
+                type: string
+                description: >-
+                  Sort Order <br>
+                    - ascending: Ascending
+                    - descending: Descending
+
+                  ●Check content
+                    - Error for other than specified value
+                enum:
+                  - ascending
+                  - descending
+            required:
+              - key
+              - order
+      required:
+        - groupId
+        - attribute
+    #getDeviceDetailRq
+    getDeviceDetailRq:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: >-
+            deviceId of device<br>
+          required:
+          - deviceId
+    #getDeviceDetailRq
+    createGrpRq:
+      type: object
+      properties:
+        parentGroupId:
+          type: string
+          description: "group id of parent group"
+        groupName:
+          type: string
+          description: "group name"
+        description:
+          type: string
+          description: "group description"  
+        groupType:
+          type: string
+          description: "group Type"
+          enum:
+            - Cluster 
+            - Non-Cluster
+          required:
+          - parentGroupId
+          - groupName
+          - groupType
+    editGrpRq:
+      type: object
+      properties:
+        groupId:
+          type: string
+          description: "group id "
+        groupName:
+          type: string
+          description: "group name"
+        description:
+          type: string
+          description: "group description"
+    getGrpListRq:
+      properties:
+        groupId:
+          type: string
+          description: "group id "
+        startIndex:
+          type: integer
+          description: "start index"
+        count:
+          type: integer
+          description: "number of records"
+          required:
+          - groupId
+          - startIndex
+          - count
+        totalFlag:
+          type: boolean
+          description: "To Render total groups "  
+        attribute:
+          type: string
+          description: "managed or trash"  
+          enum:
+          - managed
+          - trash
+        groupType:
+          type: string
+          description: "Cluster or nonCluster"
+        filterList:
+          type: array
+          description: "Cluster or nonCluster"
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: 'group column '
+              value:
+                type: string
+                description: 'group column value'
+        orderBy:
+          type: array
+          description: 'Sort Specification'
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                description: ''
+              order:
+                type: string
+                description: ' asc or des'
+    getGrpTreeRq:
+      properties:
+        startIndex:
+          type: integer
+          description: "start index"
+        count:
+          type: integer
+          description: "number of records(default 10)"
+        userid:
+          type: string
+          description: "user Id"
+        expand:
+          type: string
+          description: "no:only requested group.childreOnly:only children , all: all groups"
+          enum:
+           - all
+           - children
+           - childrenonly
+           - no
+    startRemoveGrpRq:
+      properties:
+        operation:
+          type: string
+          description: "group operations"
+          enum:
+           - moveTrash
+           - restore
+           - delete
+        groupIds:
+          type: array
+          items:
+           type: string
+          description: "List of groupIds "
+    startMoveGrpRq:
+      properties:
+        srcGroupId:
+          type: string
+          description: "source Group Id"
+        dstGroupId:
+          type: string
+          description: "destination Group Id"
+    checkProgressRq:
+      properties:
+        requestId:
+          type: string
+          description: "Request Id"
+    getRemoveGroupResultRq:
+      properties:
+        requestId:
+          type: string
+          description: "Request Id"
+    getMoveGroupResultRq:
+      properties:
+        requestId:
+          type: string
+          description: "Request Id"
+    startRemoveGrpRes:
+      type: object
+      description: 'startRemoveGroup response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        requestId:
+          type: string
+          description: "requestId"
+    startMoveGrpRes:
+      type: object
+      description: 'start Move Group response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        requestId:
+          type: string
+          description: "requestId"
+    checkProgressRes:
+      type: object
+      description: 'check progress response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        progressCompleteFlag:
+          type: boolean
+          enum:
+          - true
+          - false 
+          description: "request Id exists or not in the queue"
+    getRemoveGroupResultRes:
+      type: object
+      description: 'get remove group result response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        result:
+          type: boolean
+          enum:
+          - true
+          - false
+          description: "group remove operation is completed or not (true/false)"
+    getMoveGroupResultRes:
+      type: object
+      description: 'get move group result response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        result:
+          type: boolean
+          enum:
+          - true
+          - false
+          description: "group move operation is completed or not (true/false)"
+    # login request
+    loginReq:
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          description: "test desc"
+    loginiotReq:
+      type: object
+      properties:
+        agentId:
+          type: string
+          description: "agent UUID"
+          default: agent1
+        iotsecretKey:
+          type: string
+          description: "iot secretkey"
+      required:
+        - agentId
+        - iotsecretKey
+    #getPermissionListReq
+    getPermissionListReq:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: "login user id"
+          default: 11111111111
+        #groupId:
+         # type: string
+          #description: "login user's homegroupId"
+      required:
+        #- groupId
+        - useId
+    # response parameters
+    # Basic functions
+    getDeviceListRes:
+      type: object
+      description: 'getDeviceList response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        startIndex:
+          type: integer
+          description: 'Start Index (Same as request parameter)'
+        count:
+          type: integer
+          description: 'Number of requests (Same as request parameter)'
+        resultCount:
+          type: integer
+          description: 'Number of items acquired this time'
+        totalCount:
+          type: integer
+          description: 'Total number of search result'
+        deviceList: 
+          type: array
+          description: 'Device list'
+          items:
+            type: object
+            properties:
+              deviceId:
+                type: string
+                description: 'deviceId'
+              modelName:
+                type: string
+                description: 'Model Name<br> After registration, if the Get Info is not executed, null character'
+              serialNumber:
+                type: string
+                description: 'Serial Number <br> After registration, if the Get Info is not executed, null character'
+              ipAddress:
+                type: string
+                description: 'IP Address'
+              dskFlag:
+                type: string
+                description: 'dsk flag'  
+              friendlyName:
+                type: string
+                description: 'Name'
+              location:
+                type: string
+                description: 'location'
+              description:
+                type: string
+                description: 'description'
+              macAddress:
+                type: string
+                description: 'macAddress'
+              lifeCount:
+                type: string
+                description: 'lifeCount'
+              firmwareVersion:
+                type: string
+                description: 'firmwareVersion'
+              createTimeStamp:
+                type: number
+                description: 'createTimeStamp'
+              lastStatusUpdate:
+                type: number
+                description: 'lastStatusUpdate'
+              lastBasicUpdate:
+                type: number
+                description: 'lastBasicUpdate'
+              lastSuppliesUpdate:
+                type: number
+                description: 'lastSuppliesUpdate'
+              lastCounterUpdate:
+                type: number
+                description: 'lastCounterUpdate'
+              communicationStatus:
+                type: string
+                description: 'Communication Status'
+              deviceTypeSetting:
+                type: string
+                description: 'deviceTypeSetting'
+              detectedDeviceType:
+                type: string
+                description: 'detectedDeviceType'
+              higherStatus:
+                type: string
+                description: >-
+                  - Higher Status possible values
+                    <table border="1">
+                      <tr><th>Description</th></tr>
+                      <tr><td>unknown</td></tr>
+                      <tr><td>printererror </td></tr>
+                      <tr><td>accountlimit </td></tr>
+                      <tr><td>overduepreventmaintenance </td></tr>
+                      <tr><td>paperjam </td></tr>
+                      <tr><td>markersupplymissing </td></tr>
+                      <tr><td>tonerempty </td></tr>
+                      <tr><td>paperempty  </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>offline </td></tr>
+                      <tr><td>printerwarning  </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>inputtraymissing </td></tr>
+                      <tr><td>outputtrayfull </td></tr>
+                      <tr><td>outputtraynearfull  </td></tr>
+                      <tr><td>outputtraymissing   </td></tr>
+                      <tr><td>stackernotinstalled  </td></tr>
+                      <tr><td>nearoverduepreventmaintenance   </td></tr>
+                      <tr><td>standby  </td></tr>
+                      <tr><td>warmup  </td></tr>
+                      <tr><td>printing  </td></tr>
+                      <tr><td>online</td></tr>
+                    </table>
+              hasDriverFile:
+                type: boolean
+                description: 'device has driver file or not'
+              dispErrorLevel:
+                type: string
+                description: 'Error Level (alert Level)'
+                enum:
+                 - error
+                 - warning
+                 - normal 
+              intrayList:
+                type: object
+                description: 'intrayList'
+              markerList:
+                type: object
+                description: 'markerList'
+              maintainenceCodeList:
+                type: object
+                description: 'maintainenceCodeList'
+              serviceCodeList:
+                type: object
+                description: 'serviceCodeList'
+    getDeviceLogRes:
+      type: object
+      description: 'getDeviceLog List response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        startIndex:
+          type: integer
+          description: 'Start Index (Same as request parameter)'
+        count:
+          type: integer
+          description: 'Number of requests (Same as request parameter)'
+        resultCount:
+          type: integer
+          description: 'Number of items acquired this time'
+        totalCount:
+          type: integer
+          description: 'Total number of search result'
+        errorCount:
+          type: integer
+          description: 'Total number of error result'
+        warningCount:
+          type: integer
+          description: 'Total number of warning result'
+        noResponseCount:
+          type: integer
+          description: 'Total number of noresponse result'
+        groupId:
+          type: string
+          description: 'groupId'
+        deviceId:
+          type: string
+          description: 'deviceId'
+        deviceLog: 
+          type: array
+          description: 'Device list'
+          items:
+            type: object
+            properties:
+              timeStamp:
+                type: integer
+                description: 'time stamp'
+              type:
+                type: string
+                description: 'type'
+              description:
+                type: string
+                description: 'description'
+              despErrorLevel:
+                type: string
+                description: 'despErrorLevel'
+              dskFlag:
+                type: string
+                description: 'dskFlag'
+              friendlyName:
+                type: string
+                description: 'friendlyName'
+              firmwareVersion:
+                type: string
+                description: 'firmwareVersion'
+              modelName:
+                type: string
+                description: 'Model Name<br> After registration, if the Get Info is not executed, null character'
+              serialNumber:
+                type: string
+                description: 'Serial Number <br> After registration, if the Get Info is not executed, null character'
+              ipAddress:
+                type: string
+                description: 'IP Address'
+              noResponse:
+                type: string
+                description: 'noResponse'
+              location:
+                type: string
+                description: 'IP Address'
+              macAddress:
+                type: string
+                description: 'mac Address'
+              communicationStatus:
+                type: string
+                description: 
+                  Communication Status
+              higherStatus:
+                type: string
+                description: >-
+                  - Higher Status possible values
+                      <table border="1">
+                      <tr><td>unknown</td></tr>
+                      <tr><td>printererror </td></tr>
+                      <tr><td>accountlimit </td></tr>
+                      <tr><td>overduepreventmaintenance </td></tr>
+                      <tr><td>paperjam </td></tr>
+                      <tr><td>markersupplymissing </td></tr>
+                      <tr><td>tonerempty </td></tr>
+                      <tr><td>coveropen </td></tr>
+                      <tr><td>paperempty  </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtraymissing </td></tr>
+                      <tr><td>alloutputtrayfull </td></tr>
+                      <tr><td>specifiedoutputtraymissing </td></tr>
+                      <tr><td>offline </td></tr>
+                      <tr><td>printerwarning  </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>paperlow</td></tr>
+                      <tr><td>inputtraymissing </td></tr>
+                      <tr><td>outputtraymissing </td></tr>
+                      <tr><td>outputtrayfull </td></tr>
+                      <tr><td>stackernotinstalled  </td></tr>
+                      <tr><td>nearoverduepreventmaintenance   </td></tr>
+                      <tr><td>standby  </td></tr>
+                      <tr><td>warmup  </td></tr>
+                      <tr><td>printing  </td></tr>
+                      <tr><td>online</td></tr>
+                    </table>
+    getDeviceDetailRes:
+      properties:
+        device: 
+          type: object
+          description: 'Device detail information'
+          properties:
+              deviceId:
+                type: string
+                description: 'deviceId'
+              modelName:
+                type: string
+                description: 'Model Name<br> After registration, if the Get Info is not executed, null character'
+              serialNumber:
+                type: string
+                description: 'Serial Number <br> After registration, if the Get Info is not executed, null character'
+              ipAddress:
+                type: string
+                description: 'IP Address'
+              friendlyName:
+                type: string
+                description: 'Name'
+              communicationStatus:
+                type: string
+                description: 
+                  Communication Status
+              counterInfo:
+                type: object
+                description: 'counter smsProperties'
+              supplyInfo:
+                type: object
+                description: 'supplies smsProperties'
+              statusInfo:
+                type: object
+                description: 'status set'
+              generalInfo:
+                type: object
+                description: 'counter smsProperties'
+              deviceTypeInfo:
+                type: object
+                description: 'counter smsProperties'
+              higherStatus:
+                type: string
+                description: >-
+                  - Higher Status possible values
+                    <table border="1">
+                      <tr><th>Description</th></tr>
+                      <tr><td>unknown</td></tr>
+                      <tr><td>printererror </td></tr>
+                      <tr><td>accountlimit </td></tr>
+                      <tr><td>overduepreventmaintenance </td></tr>
+                      <tr><td>paperjam </td></tr>
+                      <tr><td>markersupplymissing </td></tr>
+                      <tr><td>tonerempty </td></tr>
+                      <tr><td>paperempty  </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>specifiedinputtrayempty </td></tr>
+                      <tr><td>offline </td></tr>
+                      <tr><td>printerwarning  </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>tonerlow </td></tr>
+                      <tr><td>inputtraymissing </td></tr>
+                      <tr><td>outputtrayfull </td></tr>
+                      <tr><td>outputtraynearfull  </td></tr>
+                      <tr><td>outputtraymissing   </td></tr>
+                      <tr><td>stackernotinstalled  </td></tr>
+                      <tr><td>nearoverduepreventmaintenance   </td></tr>
+                      <tr><td>standby  </td></tr>
+                      <tr><td>warmup  </td></tr>
+                      <tr><td>printing  </td></tr>
+                      <tr><td>online</td></tr>
+                    </table>
+              hasDriverFile:
+                type: boolean
+                description: 'device has driver file or not'
+              dispErrorLevel:
+                type: string
+                description: 'Error Level (alert Level)'
+                enum:
+                 - error
+                 - warning
+                 - normal 
+              disposalMarkerList:
+                type: array
+                description: 'disposalMarker List'
+                items:
+                  type: object
+                  properties:
+                    disposalMarker:
+                      type: object
+                      description: 'disposalMarker'
+              hrDeviceEntry:
+                type: array
+                description: 'hrDeviceEntry'
+                items:
+                  type: object
+                  properties:
+                    deviceEntry:
+                      type: object
+                      description: 'Device Entry'
+              maintainenceCodeList:
+                type: object
+                description: 'maintainenceCodeList'
+              serviceCodeList:
+                type: object
+                description: 'serviceCodeList'
+              PrintSettings:
+                type: object
+                description: 'PrintSettings'
+              prtInterpreterDescription:
+                type: array
+                description: 'prtInterpreterDescription'
+                items:
+                  type: object
+                  properties:
+                    descriptionLanguage:
+                      type: object
+                      description: 'descriptionLanguage'
+              snmpCondition:
+                type: array
+                description: 'prtInterpreterDescription'
+                items:
+                  type: object
+                  properties:
+                    snmpV1:
+                      type: object
+                      description: 'snmpV1'
+                      properties:
+                          getcommunity:
+                           type: string
+                           description: 'snmpV1'
+                          userFlag:
+                           type: boolean
+                           description: "useflag"
+                    snmpV3:
+                      type: object
+                      description: 'snmpV3'
+                      properties:
+                          contextName:
+                           type: string
+                           description: 'contextName'
+                          securityAuthKey:
+                           type: string
+                           description: "securityAuthKey"
+                          securityAuthType:
+                           type: string
+                           description: "securityAuthType"
+                          securityPrivKey:
+                           type: string
+                           description: "securityPrivKey"
+                          securityPrivType:
+                           type: string
+                           description: "securityPrivType"
+    createGrpRes:
+      type: object
+      description: 'createGroup response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        groupId: 
+          type: string
+          description: 'Returns groupId'
+    editGrpRes:
+      type: object
+      description: 'getDeviceList response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+    getGrpListRes:
+      type: object
+      description: 'getDeviceList response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        groupId: 
+          type: string
+          description: 'groupId'
+        startIndex: 
+          type: string
+          description: 'start index'
+        count:
+          type: string
+          description: 'number of records requested '
+        resultCount:
+          type: string
+          description: 'number of records received'
+        totalFlag:
+          type: boolean
+          description: 'To Render total groups '
+        totalCount:
+          type: string
+          description: 'total records '
+        resultData:
+          type: array
+          description: 'resultdata'
+          items:
+            type: object
+            properties:
+              groupId:
+                type: string
+                description: 'group id'
+              groupType:
+                type: string
+                description: 'group type'
+              groupName:
+                type: string
+                description: 'group name'
+              groupPath:
+                type: string
+                description: 'group path'
+              parentGroupId:
+                type: string
+                description: 'group id of parentGroupId'
+              autoRegister:
+                type: boolean
+                description: 'auto registration '
+              description:
+                type: string
+                description: 'description of group'
+              upperGroupList:
+                type: array
+                description: 'upper group list'
+                items:
+                  type: object
+                  properties:
+                    groupId:
+                      type: integer
+                      description: 'integer'
+    getGrpTreeRes:
+      type: object
+      description: 'createGroup response parameter'
+      properties:
+        common:
+          $ref: '#/components/schemas/commonRsp'
+        startIndex: 
+          type: string
+          description: 'start index'
+        count:
+          type: string
+          description: 'number of records requested '
+        resultCount:
+          type: string
+          description: 'number of records received'
+        groupId:
+          type: string
+          description: 'groupId'
+        totalCount:
+          type: string
+          description: 'total records '
+        groupList:
+          type: array
+          description: 'groupList'
+          items:
+            type: object
+            properties:
+              groupId:
+                type: string
+                description: 'group id'
+              groupName:
+                type: string
+                description: 'group name'
+              parentGroupId:
+                type: string
+                description: 'group id of parentGroupId'
+              description:
+                type: string
+                description: 'group description'
+    loginRes:
+      type: object
+      description: 'Application login response with Permission List'
+      properties:
+        status:
+          type: string
+          description: 'Login status'
+          enum:
+          - Success
+          - Failure
+        token:
+          type: string
+          description: 'Valid JWT token with PermissionList'
+          example: eyJraWQiOiJSRmRTNE5uOHp0N1VGNFNTZ3VIZVdPYjlLN0JobTA2ODdBVGJDcjJwNWxNPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhNDJhODgxMy1mYzg5LTRlYjctOTY5Yi04NGI2Zjc2ZTFjOGQiLCJjb2duaXRvOmdyb3VwcyI6WyIzOWRlZjk4My0wZDgxLTRiYzUtODEzYi1lN2NmNGJhNGJkZTk6c2lyZWVzaGFjaGl0dGk5N0BnbWFpbC5jb206YjlkZGRjZDItZmM4OC00NjBkLWE5NWItMmE1OGRlZTI3ZTc2Il0sImV2ZW50X2lkIjoiNDFkMjc5YzUtYzRkOC00YWZjLWJhOGEtYzM4YTFkYjdkNjhlIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTU5MTExODY3NCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfMXg4V3lOSWZWIiwiZXhwIjoxNTkxMTIyMjc0LCJpYXQiOjE1OTExMTg2NzQsImp0aSI6ImRmZTQxMmNlLThlYTUtNGI0Mi1hN2EwLWJiM2FmOTAyNjRjYSIsImNsaWVudF9pZCI6IjI5b3Nzbmc4aG02ZDUycmk3NW1pMzQwdTZoIiwidXNlcm5hbWUiOiJhNDJhODgxMy1mYzg5LTRlYjctOTY5Yi04NGI2Zjc2ZTFjOGQifQ.ezH6XfqinmAe9QSinBxNWcQBRGkKGh4zYPQ5iLnP5Rfn_hgSpAYuY3JXHXn3Igj_e7Pof8ESgn1cgV-iC-yWwCsHx7vnGfi7DCqsq4OrH0SZVybuPOYlvhis0y90miCQrVqmAsBeqypcGlRiCthdz4xMeKDP3HlyPBgysmtr3TMzaFhNkgt7Pyy839hlchmoAkvl7ognRuIhHUz9pQcxN1bL_b_XHjJeBKbEbfu5KTYq8gKUAg98TJIMovepIRMWN4J1GxOYHckXJaN34ylSAdAoI89lK1dsRvVLPrrzppPbfRHQR1socduoRs1yidJj3pvj9YzMNSqwYP2OyF55FA
+        refreshToken:
+          type: string
+          description: 'refresh token'
+          example: eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.ay_MsAbrNmfwFOvS_Hr13ZDzBpU0HDbEk42VM5SwJZE5ehYS3V5QAgxTzixCunCCf5Hw4q9tDopOMoFTTR_dhG_d_JWGzeJrO2H1gcBtoa_6N3ZC7BJDWYYcHdlkR55ujCZnyI3V90-OiQRllX0pRpsiWV-rQQ4Sl1WEDfDmz09bjxDBWJdbJkCGqzpf1FEsD-xLEP7m4M4jssLW0MhYH2P3D7jmZNCf7GHeXo5Bc8k2oeC6BnEHkJSNl9sbNrGPXdWJoe6Oe5yqzpiYf6bMJ6AqH-PhLHOkC9w87gc0aQSNJALOM8fWuz-de16CSKlQB9S7TqTS0RbfcGubz_qhgA.2XO6iyR5X9r7zQTt.Y3JRQQDvlhRkj6rbDMlpPSaSTa7oKfjCRxBTxNXeCMzwAzHLF7yHlJphhRag_22KoVMSHBDWbG09BTvAKvGgED7ttrRJVC4dOr7en-VMQjJIxjl7hx3DPnJx4o-un48nvKAQyqIokrCJF_vCeepMralS01UUzipM3ZZQSHxr7eNlyFs9VvPRabpNgbRyuQoXY8xAXC097GZr_4O5nUa164nDiyDfMnWqO-lxB85v5bvlyEWxz5HPr_VJkeOyB7dM5r3Uj-_cMcYAoUhVYIcCkRdnypo6oz-JmJekViGKKDmsKLZRBXdyZBTNTm5G5CUA_EMIa6KPG-l1XmrF9ZgMS5OLLCACKlrtrndo9n9AfFBcBlnX87ztKsKu_jNhwnEr5Q1M_OTpQyf3NFLGlyeq-TDOLrVFloN4RJ89iF-0cGPrO3kKJq_krkn0nN1Mpws8ysbxPmLMdxbmDVuFwjUHFABohfIB0V_pEB5VtqYRnA2DrV5r02J9eqlpw6UPIrt2WcFpRcMLwMZMiRFLkWbtIVZu_7zXSHBNpZQp8xYogWWUGJ7Re_8ZO-ljmBuNuolnhVwXQUlaTF7dzZdzDJ3hg5l3zjroCbvb9oSpY1IA1t-4GoPcjAsOF8sqo3jpInGQfQwXReHXcEq7bI4fBgNz0Y--JNFEmSKDgkpg1CoC9ovrg5hg8Vzr0JavAJInLYVzmMjHNv5siFRUfDHGcA1nWVFT_GgvvUVc6dOzzmrfO7J0rizkQhUAx6u8bARYYB9I8MiHHYcrS3VV_UYHbg7bHj7CMU5cZgk6q6na8RQYrejhBixWoKpxO0WbIXTvNBflpTssTHSfRh519xLfCUqpL1Qk8B1aK-GnvMlwjwbz8wogSU89TeQ95UdBN0L230h-r0xnR87dAt3xllfJufUCfzovgKghM-MaQcBO0jNQgVoc8NYkg6g_eyEjc1wYNkaSHrCwpF-NcSgJJSRplZUyxkuX-OPGR7s1CFvNTU2AXY7Qx4S8-ezksRRv-oa5T_ym8-9fxTjU_7z9Iw6faMdUgbb5Piosg2FlgOJma96OVz6AS_1nyI0Hz5UkWMv9yyz1OyyZrlSO1dDV06KwaMt0M3uidQRVGNNk2O8Gu3v_KphnQI9PoEVMde1Q1vA2d2Dw6ISm3AGnxCJn9M6EjbIwRQFvFXRvntEYTT-oS-GI-xHz_ZlwvyK6e6qvWD2-zhiO_i5CPtrXupotYKynL8xuy-kiVGgb8wNrjVox0trF2eA8bvSWvQtD_HUZ7v9y5_W0RxXBYAtXQnEesL4pGmVJtez4VHFi0Cy2ss5nyv9NX8R6bYTXshVWSap4SA.LnBjsR3ZPaTBfvDASHe_oA
+        expiryTime:
+          type: integer
+          description: 'Token exipry time '
+          example: 158997596
+    #loginiotRes
+    loginiotRes:
+      type: object
+      description: 'get sessiontoken'
+      properties:
+        sessionToken:
+          type: string
+          description: 'sessiontoken'
+    # logoutres
+    logoutRes:
+      type: object
+      description: 'getDeviceList response parameter.'
+      properties:
+        status:
+          type: string
+          description: 'application logout response'
+          enum:
+           - success
+           - failure
+    getPermissionListRes:
+      type: object
+      description: 'getPermissionList response parameter.'
+      properties:
+        permissionList: 
+          type: array
+          description: 'permissionList'
+          items:
+            type: object
+            properties:
+              permissionName:
+                type: string
+                description: 'permissionName'
+                enum:
+                  #- cloudService
+                  - group
+                  - system
+                  - fileDistribution
+                  - advancedFeatureBasic
+                  - deviceCloning
+                  - powerManagement
+                  - service
+                  - agentInstall
+                  - fieldSupportSystem
+                  - firmwareUpdate
+                  #- domain
+                  - account
+                  - accountofownDomain #default but invisible
+                  - browse #default but invisible
+              attribute:
+                type: string
+                description: 'visible'
+                enum:
+                  - visible
+                  - invisible
+    commonRsp:
+      type: object
+      properties:
+        errorList:
+          type: array
+          items:
+            type: object
+            properties:
+              errorCode:
+                type: string
+                description: >-
+                  Error Code
+                    - Error Code list
+                      <table border="1">
+                        <tr><th>Error code</th><th>Description</th></tr>
+                        <tr><td>E0001</td><td>DB Access Error</td></tr>
+                        <tr><td>E0004</td><td>JSON Path error</td></tr>
+                        <tr><td>E0011</td><td>Parameter mandatory check error</td></tr>
+                        <tr><td>E0014</td><td>Parameter format check error</td></tr>
+                        <tr><td>E0019</td><td>When target instance (group or device etc.) does not exist</td></tr>
+                        <tr><td>E0021</td><td>Invalid token</td></tr>
+                        <tr><td>E0024</td><td>No permission Error</td></tr>
+                        <tr><td>E0026</td><td>Session timeout error</td></tr>
+                        <tr><td>E0050</td><td>Error other than specified group management</td></tr>
+                      </table>
+              errorField:
+                type: string
+                description: 'Parameter field where error occurred'
+              errorValue:
+                type: string
+                description: 'Value that result into an error'
+              errorMessage:
+                type: string
+                description: 'Error message (Text that human can understand)'              
+  #Security Schemas
+  securitySchemes:
+    UserSecurity:      # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+security:
+    - UserSecurity: []  # <-- use the same name here
+    #- cookieAuth: []
