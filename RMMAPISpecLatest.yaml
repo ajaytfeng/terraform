@@ -1,0 +1,138 @@
+openapi: '3.0.3'
+
+info:
+  title: RMM API Specification1
+  version: '0.2'
+  description: 'This is specification doc for RMM1(In-Progress)'
+                
+
+servers:
+  - url: "https://rmmmgmt.azure-api.net/"
+    description: 'RMM APIs'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: https
+      serviceAddress:
+        description: Azure API Management Console URL
+        default: rmmamgmt.azure-api.net
+
+tags:
+  - name: RMM Account Services
+    description: 'Account Operations (Login,Logout,changepassword)'
+
+  - name: Device Operations
+    description: 'Device Operations(device list,device details,logs)'
+  
+  - name: Permission API
+    description: 'Permission for login user account on home group'
+    
+  - name: Group Operations
+    description: 'Group Operations(group create, delete,edit & display)'
+    
+  - name: DB Operations
+    description: 'Check Progress(check existance of request id in the queue '
+paths:
+  # Device Operations
+  
+  /rmm/account/login:
+    post:
+      tags:
+        - 'RMM Account Services'
+      summary: Temporary APIs. This API will be enhanced later based on the Requirement Retrieve jwt token for the login user containing the PermissionList & GroupTree to which user has access to
+     # security:
+    #    - UserSecurity: []
+      #parameters:
+       # - name: Authorization
+        #  in: header
+         # schema:
+          #  type: string
+          #description: 'JWT Access Token issued by AWS Cognito pool '
+          #required: true
+      responses:
+        '200':
+          description: 'Returns the Login Response containing Session token,status & expire time with token containing permission list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginRes'             
+  
+components:
+  schemas:
+    # request pamameters
+    # devicelist request
+    # login request
+    loginReq:
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          description: "test desc"  
+    loginRes:
+      type: object
+      description: 'Application login response with Permission List'
+      properties:
+        status:
+          type: string
+          description: 'Login status'
+          enum:
+          - Success
+          - Failure
+        token:
+          type: string
+          description: 'Valid JWT token with PermissionList'
+          example: eyJraWQiOiJSRmRTNE5uOHp0N1VGNFNTZ3VIZVdPYjlLN0JobTA2ODdBVGJDcjJwNWxNPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhNDJhODgxMy1mYzg5LTRlYjctOTY5Yi04NGI2Zjc2ZTFjOGQiLCJjb2duaXRvOmdyb3VwcyI6WyIzOWRlZjk4My0wZDgxLTRiYzUtODEzYi1lN2NmNGJhNGJkZTk6c2lyZWVzaGFjaGl0dGk5N0BnbWFpbC5jb206YjlkZGRjZDItZmM4OC00NjBkLWE5NWItMmE1OGRlZTI3ZTc2Il0sImV2ZW50X2lkIjoiNDFkMjc5YzUtYzRkOC00YWZjLWJhOGEtYzM4YTFkYjdkNjhlIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTU5MTExODY3NCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfMXg4V3lOSWZWIiwiZXhwIjoxNTkxMTIyMjc0LCJpYXQiOjE1OTExMTg2NzQsImp0aSI6ImRmZTQxMmNlLThlYTUtNGI0Mi1hN2EwLWJiM2FmOTAyNjRjYSIsImNsaWVudF9pZCI6IjI5b3Nzbmc4aG02ZDUycmk3NW1pMzQwdTZoIiwidXNlcm5hbWUiOiJhNDJhODgxMy1mYzg5LTRlYjctOTY5Yi04NGI2Zjc2ZTFjOGQifQ.ezH6XfqinmAe9QSinBxNWcQBRGkKGh4zYPQ5iLnP5Rfn_hgSpAYuY3JXHXn3Igj_e7Pof8ESgn1cgV-iC-yWwCsHx7vnGfi7DCqsq4OrH0SZVybuPOYlvhis0y90miCQrVqmAsBeqypcGlRiCthdz4xMeKDP3HlyPBgysmtr3TMzaFhNkgt7Pyy839hlchmoAkvl7ognRuIhHUz9pQcxN1bL_b_XHjJeBKbEbfu5KTYq8gKUAg98TJIMovepIRMWN4J1GxOYHckXJaN34ylSAdAoI89lK1dsRvVLPrrzppPbfRHQR1socduoRs1yidJj3pvj9YzMNSqwYP2OyF55FA
+        refreshToken:
+          type: string
+          description: 'refresh token'
+          example: eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.ay_MsAbrNmfwFOvS_Hr13ZDzBpU0HDbEk42VM5SwJZE5ehYS3V5QAgxTzixCunCCf5Hw4q9tDopOMoFTTR_dhG_d_JWGzeJrO2H1gcBtoa_6N3ZC7BJDWYYcHdlkR55ujCZnyI3V90-OiQRllX0pRpsiWV-rQQ4Sl1WEDfDmz09bjxDBWJdbJkCGqzpf1FEsD-xLEP7m4M4jssLW0MhYH2P3D7jmZNCf7GHeXo5Bc8k2oeC6BnEHkJSNl9sbNrGPXdWJoe6Oe5yqzpiYf6bMJ6AqH-PhLHOkC9w87gc0aQSNJALOM8fWuz-de16CSKlQB9S7TqTS0RbfcGubz_qhgA.2XO6iyR5X9r7zQTt.Y3JRQQDvlhRkj6rbDMlpPSaSTa7oKfjCRxBTxNXeCMzwAzHLF7yHlJphhRag_22KoVMSHBDWbG09BTvAKvGgED7ttrRJVC4dOr7en-VMQjJIxjl7hx3DPnJx4o-un48nvKAQyqIokrCJF_vCeepMralS01UUzipM3ZZQSHxr7eNlyFs9VvPRabpNgbRyuQoXY8xAXC097GZr_4O5nUa164nDiyDfMnWqO-lxB85v5bvlyEWxz5HPr_VJkeOyB7dM5r3Uj-_cMcYAoUhVYIcCkRdnypo6oz-JmJekViGKKDmsKLZRBXdyZBTNTm5G5CUA_EMIa6KPG-l1XmrF9ZgMS5OLLCACKlrtrndo9n9AfFBcBlnX87ztKsKu_jNhwnEr5Q1M_OTpQyf3NFLGlyeq-TDOLrVFloN4RJ89iF-0cGPrO3kKJq_krkn0nN1Mpws8ysbxPmLMdxbmDVuFwjUHFABohfIB0V_pEB5VtqYRnA2DrV5r02J9eqlpw6UPIrt2WcFpRcMLwMZMiRFLkWbtIVZu_7zXSHBNpZQp8xYogWWUGJ7Re_8ZO-ljmBuNuolnhVwXQUlaTF7dzZdzDJ3hg5l3zjroCbvb9oSpY1IA1t-4GoPcjAsOF8sqo3jpInGQfQwXReHXcEq7bI4fBgNz0Y--JNFEmSKDgkpg1CoC9ovrg5hg8Vzr0JavAJInLYVzmMjHNv5siFRUfDHGcA1nWVFT_GgvvUVc6dOzzmrfO7J0rizkQhUAx6u8bARYYB9I8MiHHYcrS3VV_UYHbg7bHj7CMU5cZgk6q6na8RQYrejhBixWoKpxO0WbIXTvNBflpTssTHSfRh519xLfCUqpL1Qk8B1aK-GnvMlwjwbz8wogSU89TeQ95UdBN0L230h-r0xnR87dAt3xllfJufUCfzovgKghM-MaQcBO0jNQgVoc8NYkg6g_eyEjc1wYNkaSHrCwpF-NcSgJJSRplZUyxkuX-OPGR7s1CFvNTU2AXY7Qx4S8-ezksRRv-oa5T_ym8-9fxTjU_7z9Iw6faMdUgbb5Piosg2FlgOJma96OVz6AS_1nyI0Hz5UkWMv9yyz1OyyZrlSO1dDV06KwaMt0M3uidQRVGNNk2O8Gu3v_KphnQI9PoEVMde1Q1vA2d2Dw6ISm3AGnxCJn9M6EjbIwRQFvFXRvntEYTT-oS-GI-xHz_ZlwvyK6e6qvWD2-zhiO_i5CPtrXupotYKynL8xuy-kiVGgb8wNrjVox0trF2eA8bvSWvQtD_HUZ7v9y5_W0RxXBYAtXQnEesL4pGmVJtez4VHFi0Cy2ss5nyv9NX8R6bYTXshVWSap4SA.LnBjsR3ZPaTBfvDASHe_oA
+        expiryTime:
+          type: integer
+          description: 'Token exipry time '
+          example: 158997596
+    #loginiotRes
+    
+    commonRsp:
+      type: object
+      properties:
+        errorList:
+          type: array
+          items:
+            type: object
+            properties:
+              errorCode:
+                type: string
+                description: >-
+                  Error Code
+                    - Error Code list
+                      <table border="1">
+                        <tr><th>Error code</th><th>Description</th></tr>
+                        <tr><td>E0001</td><td>DB Access Error</td></tr>
+                        <tr><td>E0004</td><td>JSON Path error</td></tr>
+                        <tr><td>E0011</td><td>Parameter mandatory check error</td></tr>
+                        <tr><td>E0014</td><td>Parameter format check error</td></tr>
+                        <tr><td>E0019</td><td>When target instance (group or device etc.) does not exist</td></tr>
+                        <tr><td>E0021</td><td>Invalid token</td></tr>
+                        <tr><td>E0024</td><td>No permission Error</td></tr>
+                        <tr><td>E0026</td><td>Session timeout error</td></tr>
+                        <tr><td>E0050</td><td>Error other than specified group management</td></tr>
+                      </table>
+              errorField:
+                type: string
+                description: 'Parameter field where error occurred'
+              errorValue:
+                type: string
+                description: 'Value that result into an error'
+              errorMessage:
+                type: string
+                description: 'Error message (Text that human can understand)'              
+  #Security Schemas
+  securitySchemes:
+    UserSecurity:      # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+security:
+    - UserSecurity: []  # <-- use the same name here
+    #- cookieAuth: []
